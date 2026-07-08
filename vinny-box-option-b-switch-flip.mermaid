@@ -1,0 +1,41 @@
+---
+title: "Option B — Switch-Flip (~$230 new parts, ~3.5 kg added, ~9 Ah @ 24 V)"
+---
+flowchart LR
+    CORD["120 VAC cord"] --> INLET
+
+    subgraph BOX["Steel enclosure — all components internal, louvers at charger"]
+        INLET["Fused AC inlet"] --> PSU["Omron S8VK-G12024<br/>24.0 V"]
+        INLET --> CHG["DeWalt DCB102-class<br/>dual-port charger, louvered"]
+
+        D1["Dock 1 — pack never leaves"] --> F1["15 A fuse"]
+        D2["Dock 2 — pack never leaves"] --> F2["15 A fuse"]
+        F1 --> T1["Toggle 1 DPDT<br/>RUN / CHARGE"]
+        F2 --> T2["Toggle 2 DPDT<br/>RUN / CHARGE"]
+
+        T1 -->|"CHARGE"| CP1["Charger port 1"]
+        T2 -->|"CHARGE"| CP2["Charger port 2"]
+        CHG --- CP1
+        CHG --- CP2
+
+        T1 -->|"RUN"| ORB["Schottky OR<br/>diode per leg, shared heatsink"]
+        T2 -->|"RUN"| ORB
+        ORB --> BOOST["Generic boost board<br/>set to 24.0 V"]
+
+        PSU -->|"MAINS position"| SEL["Cam selector pole 1<br/>MAINS - OFF - BATT<br/>break-before-make, DC rated"]
+        BOOST -->|"BATT position"| SEL
+        SEL --> BUS(("24 V bus"))
+        BUS --> PLC["C6017 + EP chain"]
+
+        SEL -. "pole 2 breaks boost input<br/>in MAINS / OFF (zero drain)" .-> ORB
+    end
+
+    style BOX fill:none,stroke:#94a3b8,stroke-dasharray:5 5
+    classDef ac fill:#e0f2fe,stroke:#0369a1,color:#0c4a6e
+    classDef batt fill:#fef9c3,stroke:#ca8a04,color:#713f12
+    classDef bus fill:#ede9fe,stroke:#7c3aed,color:#4c1d95
+    classDef load fill:#dcfce7,stroke:#16a34a,color:#14532d
+    class CORD,INLET,PSU,CHG ac
+    class D1,D2,F1,F2,T1,T2,CP1,CP2,ORB,BOOST batt
+    class SEL,BUS bus
+    class PLC load
