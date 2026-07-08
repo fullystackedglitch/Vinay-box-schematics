@@ -1,0 +1,39 @@
+flowchart LR
+
+    AC["120 VAC Input"]
+
+    PSU["Omron S8VK-G12024<br/>120VAC → 24VDC PSU"]
+
+    CHG["DeWalt OEM Charger"]
+
+    BAT1["DeWalt Battery Dock 1"]
+    BAT2["DeWalt Battery Dock 2"]
+
+    ORBAT["Battery OR-ing<br/>Ideal Diode / Schottky Module"]
+
+    BOOST["DC/DC Converter<br/>DeWalt ~18-21V → 24VDC"]
+
+    OR24["24V Redundancy / OR Module<br/>Omron + Battery Source"]
+
+    BUS["24V DC Bus"]
+
+    PLC["Beckhoff C6017 + EtherCAT I/O"]
+
+
+    AC --> PSU
+    AC --> CHG
+
+    CHG --> BAT1
+    CHG --> BAT2
+
+    BAT1 --> ORBAT
+    BAT2 --> ORBAT
+
+    ORBAT --> BOOST
+
+    PSU --> OR24
+    BOOST --> OR24
+
+    OR24 --> BUS
+
+    BUS --> PLC
