@@ -1,0 +1,31 @@
+---
+title: "Option A — Full Kit (~$355 new parts, ~4.9 kg added)"
+---
+flowchart LR
+    AC["120 VAC inlet"] --> CB["Main breaker"]
+    CB --> CHG["DeWalt DCB1104 charger<br/>cradle on box exterior"]
+    CB --> PSU["Omron S8VK-G12024<br/>trimmed to 24.5 V"]
+
+    D1["Dock 1 — 20V pack"] --> F1["15 A fuse + Schottky"]
+    D2["Dock 2 — 20V pack"] --> F2["15 A fuse + Schottky"]
+    F1 --> ARM["ARM switch<br/>kills storage drain"]
+    F2 --> ARM
+    ARM --> J((" "))
+    J --> BOOST["Mean Well DDR-120B-24<br/>16.8–33.6 V in / 23.5 V out<br/>input UVLO = pack cutoff"]
+
+    PSU -->|"24.5 V"| OR["DRDN20-24<br/>redundancy OR module"]
+    BOOST -->|"23.5 V"| OR
+    OR --> BUF["DBUF20-24 cap buffer<br/>seconds of ride-through"]
+    BUF --> BUS(("24 V bus"))
+    BUS --> LOAD["C6017 + EP chain"]
+
+    J -. "voltage divider" .-> AI["EP3184 AI<br/>low-batt alarm, clean shutdown"]
+
+    classDef ac fill:#e0f2fe,stroke:#0369a1,color:#0c4a6e
+    classDef batt fill:#fef9c3,stroke:#ca8a04,color:#713f12
+    classDef bus fill:#ede9fe,stroke:#7c3aed,color:#4c1d95
+    classDef load fill:#dcfce7,stroke:#16a34a,color:#14532d
+    class AC,CB,PSU,CHG ac
+    class D1,D2,F1,F2,ARM,J,BOOST batt
+    class OR,BUF,BUS bus
+    class LOAD,AI load

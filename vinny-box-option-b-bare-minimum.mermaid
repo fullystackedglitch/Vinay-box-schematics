@@ -1,0 +1,28 @@
+---
+title: "Option B — Bare Minimum (~$110 new parts, ~2.7 kg added)"
+---
+flowchart LR
+    AC["120 VAC inlet"] --> CB["Main breaker"]
+    CB --> PSU["Omron S8VK-G12024<br/>24 V"]
+
+    D1["Dock 1 — 20V pack"] --> F1["15 A fuse + Schottky"]
+    D2["Dock 2 — 20V pack"] --> F2["15 A fuse + Schottky"]
+    F1 --> P2["Selector pole 2<br/>closed in BATT only<br/>(zero storage drain)"]
+    F2 --> P2
+    P2 --> BOOST["Generic boost board<br/>set to 24.0 V"]
+
+    PSU -->|"MAINS position"| SEL["Cam selector pole 1<br/>MAINS - OFF - BATT<br/>break-before-make, DC rated"]
+    BOOST -->|"BATT position"| SEL
+    SEL --> BUS(("24 V bus"))
+    BUS --> LOAD["C6017 + EP chain"]
+
+    P2 -. "same shaft, 2-pole" .-> SEL
+
+    classDef ac fill:#e0f2fe,stroke:#0369a1,color:#0c4a6e
+    classDef batt fill:#fef9c3,stroke:#ca8a04,color:#713f12
+    classDef bus fill:#ede9fe,stroke:#7c3aed,color:#4c1d95
+    classDef load fill:#dcfce7,stroke:#16a34a,color:#14532d
+    class AC,CB,PSU ac
+    class D1,D2,F1,F2,P2,BOOST batt
+    class SEL,BUS bus
+    class LOAD load

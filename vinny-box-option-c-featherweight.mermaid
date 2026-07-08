@@ -1,0 +1,27 @@
+---
+title: "Option C — Featherweight (~$85 new parts, ~2.4 kg added)"
+---
+flowchart LR
+    AC["120 VAC inlet"] --> CB["Main breaker"]
+    CB --> PSU["Omron S8VK-G12024<br/>trimmed to 24.5 V"]
+    PSU --> DS1["Schottky<br/>shared heatsink"]
+
+    D1["Dock 1 — 20V pack"] --> F1["15 A fuse + Schottky"]
+    D2["Dock 2 — 20V pack"] --> F2["15 A fuse + Schottky"]
+    F1 --> ST["STORE toggle<br/>mini DC rated"]
+    F2 --> ST
+    ST --> BOOST["Generic boost board<br/>set to 23.5 V"]
+    BOOST --> DS2["Schottky<br/>shared heatsink"]
+
+    DS1 -->|"24.5 V — wins on mains"| BUS(("24 V bus"))
+    DS2 -->|"23.5 V — standby"| BUS
+    BUS --> LOAD["C6017 + EP chain"]
+
+    classDef ac fill:#e0f2fe,stroke:#0369a1,color:#0c4a6e
+    classDef batt fill:#fef9c3,stroke:#ca8a04,color:#713f12
+    classDef bus fill:#ede9fe,stroke:#7c3aed,color:#4c1d95
+    classDef load fill:#dcfce7,stroke:#16a34a,color:#14532d
+    class AC,CB,PSU,DS1 ac
+    class D1,D2,F1,F2,ST,BOOST,DS2 batt
+    class BUS bus
+    class LOAD load
