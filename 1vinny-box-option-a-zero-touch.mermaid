@@ -5,35 +5,50 @@ flowchart LR
     CORD["120 VAC cord"] --> INLET
 
     subgraph BOX["Steel enclosure — all components internal, louvers at charger"]
-        INLET["Fused AC inlet"] --> PSU["Omron S8VK-G12024<br/>trimmed to 24.5 V"]
-        INLET --> CHG["DeWalt DCB1104 charger<br/>internal, louvered"]
 
-        D1["Dock 1 — pack never leaves"] --> F1["15 A fuse"]
-        D2["Dock 2 — pack never leaves"] --> F2["15 A fuse"]
-        F1 --> K1["Relay K1 DPDT<br/>de-energized = RUN"]
-        F2 --> K2["Relay K2 DPDT<br/>de-energized = RUN"]
+        subgraph ACS["AC side"]
+            INLET["Fused AC inlet"] --> PSU["Omron S8VK-G12024<br/>trimmed to 24.5 V"]
+            INLET --> CHG["DeWalt DCB1104 charger<br/>internal, louvered"]
+        end
 
-        K1 -->|"NO: CHARGE<br/>B+ and thermistor"| CHR["Charge rail"]
-        K2 -->|"NO: CHARGE"| CHR
+        subgraph BATT["Battery system — packs never leave"]
+            D1["Dock 1"] --> F1["15 A fuse"]
+            D2["Dock 2"] --> F2["15 A fuse"]
+            F1 --> K1["Relay K1 DPDT<br/>de-energized = RUN"]
+            F2 --> K2["Relay K2 DPDT<br/>de-energized = RUN"]
+            K1 -->|"NO: CHARGE<br/>B+ and thermistor"| CHR["Charge rail"]
+            K2 -->|"NO: CHARGE"| CHR
+            K1 -->|"NC: RUN"| ORB["Schottky OR<br/>diode per leg, shared heatsink"]
+            K2 -->|"NC: RUN"| ORB
+            ORB --> ARM["ARM / STORE switch"]
+            ARM --> BOOST["DDR-120B-24<br/>out 23.5 V, 16.8 V UVLO = pack cutoff"]
+        end
+
+        subgraph SRC["24V source selection"]
+            OR24["DRDN20-24<br/>mains wins by 1 V"] --> BUS(("24 V bus"))
+        end
+
+        subgraph CTL["Control and monitoring"]
+            PLC["C6017 + EP chain"]
+            AI["EP3184 AIs"]
+        end
+
         CHG --- CHR
-
-        K1 -->|"NC: RUN"| ORB["Schottky OR<br/>diode per leg, shared heatsink"]
-        K2 -->|"NC: RUN"| ORB
-        ORB --> ARM["ARM / STORE switch"]
-        ARM --> BOOST["DDR-120B-24<br/>out 23.5 V, 16.8 V UVLO = pack cutoff"]
-
-        PSU -->|"24.5 V"| OR24["DRDN20-24<br/>mains wins by 1 V"]
+        PSU -->|"24.5 V"| OR24
         BOOST -->|"23.5 V"| OR24
-        OR24 --> BUS(("24 V bus"))
-        BUS --> PLC["C6017 + EP chain"]
+        BUS --> PLC
 
         PLC -. "EP2038 coils<br/>rule: max 1 dock charging" .-> K1
         PLC -.-> K2
-        ARM -. "pack V divider" .-> AI["EP3184 AIs"]
+        ARM -. "pack V divider" .-> AI
         PSU -. "mains-present sense" .-> AI
     end
 
     style BOX fill:none,stroke:#94a3b8,stroke-dasharray:5 5
+    style ACS fill:#f0f9ff,stroke:#0369a1,stroke-width:1px
+    style BATT fill:#fffbeb,stroke:#ca8a04,stroke-width:1px
+    style SRC fill:#f5f3ff,stroke:#7c3aed,stroke-width:1px
+    style CTL fill:#f0fdf4,stroke:#16a34a,stroke-width:1px
     classDef ac fill:#e0f2fe,stroke:#0369a1,color:#0c4a6e
     classDef batt fill:#fef9c3,stroke:#ca8a04,color:#713f12
     classDef bus fill:#ede9fe,stroke:#7c3aed,color:#4c1d95
